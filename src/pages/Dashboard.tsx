@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAssets } from '../hooks/useAssets';
 import { CATEGORIES, getCategoryByKey } from '../data/categories';
-import { formatJPY } from '../utils/format';
+import { formatJPY, formatJPYShort } from '../utils/format';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -40,8 +40,8 @@ export function Dashboard() {
       {/* Total net assets */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white mb-6 shadow-lg">
         <p className="text-sm font-medium opacity-80">総資産</p>
-        <p className="text-4xl font-bold mt-1">{formatJPY(total)}</p>
-        <p className="text-sm opacity-70 mt-1">{total.toLocaleString()}円</p>
+        <p className="text-4xl font-bold mt-1">{formatJPYShort(total)}</p>
+        <p className="text-sm opacity-70 mt-1">{formatJPY(total)}</p>
       </div>
 
       {/* Chart + Category cards */}
@@ -69,7 +69,7 @@ export function Dashboard() {
                   formatter={(value, name) => {
                     const amt = Number(value);
                     const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : '0.0';
-                    return [`${formatJPY(amt)}（${pct}%）`, name];
+                    return [`${formatJPYShort(amt)}（${pct}%）`, name];
                   }}
                   contentStyle={{ fontSize: 12 }}
                 />
@@ -100,7 +100,7 @@ export function Dashboard() {
                     <span className={`font-medium ${cat.textColor}`}>{cat.label}</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-xs text-gray-400">{pctDisplay}%</span>
-                      <span className="text-gray-700 font-semibold">{formatJPY(amt)}</span>
+                      <span className="text-gray-700 font-semibold">{formatJPYShort(amt)}</span>
                     </div>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">

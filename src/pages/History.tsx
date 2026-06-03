@@ -2,7 +2,7 @@ import { useAssets } from '../hooks/useAssets';
 import { useSnapshots } from '../hooks/useSnapshots';
 import { CATEGORIES } from '../data/categories';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { formatJPY } from '../utils/format';
+import { formatJPY, formatJPYShort } from '../utils/format';
 
 export function History() {
   const { assets } = useAssets();
@@ -43,16 +43,12 @@ export function History() {
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9CA3AF' }} />
               <YAxis
-                tickFormatter={v => {
-                  if (v >= 100000000) return `${(v / 100000000).toFixed(1)}億`;
-                  if (v >= 10000) return `${Math.round(v / 10000)}万`;
-                  return String(v);
-                }}
+                tickFormatter={v => formatJPYShort(Number(v))}
                 tick={{ fontSize: 11, fill: '#9CA3AF' }}
                 width={60}
               />
               <Tooltip
-                formatter={(value) => [formatJPY(Number(value)), '総資産']}
+                formatter={(value) => [formatJPYShort(Number(value)), '総資産']}
                 contentStyle={{ fontSize: 12, borderRadius: 8 }}
               />
               <Line
@@ -81,7 +77,7 @@ export function History() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-base font-bold text-gray-800">{snap.date}</h3>
-                  <p className="text-xl font-bold text-blue-600 mt-0.5">{formatJPY(snap.total)}</p>
+                  <p className="text-xl font-bold text-blue-600 mt-0.5">{formatJPYShort(snap.total)}</p>
                 </div>
                 <button
                   onClick={() => {
@@ -104,7 +100,7 @@ export function History() {
                       <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: cat.color }} />
                       </div>
-                      <span className="text-xs font-medium text-gray-700 w-24 text-right">{formatJPY(amt)}</span>
+                      <span className="text-xs font-medium text-gray-700 w-24 text-right">{formatJPYShort(amt)}</span>
                     </div>
                   );
                 })}
