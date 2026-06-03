@@ -71,7 +71,11 @@ export function Dashboard() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [formatJPY(Number(value)), '']}
+                  formatter={(value, name) => {
+                    const amt = Number(value);
+                    const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : '0.0';
+                    return [`${formatJPY(amt)}（${pct}%）`, name];
+                  }}
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Legend
