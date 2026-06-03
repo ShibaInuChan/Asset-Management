@@ -10,3 +10,11 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Remove focus outline on recharts SVG elements */
+.recharts-sector:focus,
+.recharts-surface:focus,
+.recharts-wrapper svg:focus,
+.recharts-pie-sector path:focus {
+  outline: none;
+}

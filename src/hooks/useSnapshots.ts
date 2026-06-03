@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react';
 import { type Snapshot, type Asset } from '../types';
 import { sampleSnapshots } from '../data/sampleData';
+import { normalizeKey } from '../data/categories';
 
 const KEY = 'snapshots';
+
+function migrateSnapshot(snap: Snapshot): Snapshot {
+  const byCategory: Record<string, number> = {};
+  for (const [k, v] of Object.entries(snap.byCategory)) {
+    const key = normalizeKey(k);
+    byCategory[key] = (byCategory[key] ?? 0) + v;
+  }
+  return { ...snap, byCategory };
+}
 
 function load(): Snapshot[] {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Snapshot[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Snapshot[];
+      const migrated = parsed.map(migrateSnapshot);
+      localStorage.setItem(KEY, JSON.stringify(migrated));
+      return migrated;
+    }
   } catch {
     // ignore
   }

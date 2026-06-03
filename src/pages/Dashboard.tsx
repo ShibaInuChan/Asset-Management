@@ -1,12 +1,12 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { useAssets } from '../hooks/useAssets';
-import { CATEGORIES, getCategoryByKey } from '../data/categories';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, Sector } from 'recharts';
+import type { SectorProps } from 'recharts';
 
-function formatJPY(amount: number): string {
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(2)}億円`;
-  if (amount >= 10000) return `${Math.floor(amount / 10000).toLocaleString()}万円`;
-  return `${amount.toLocaleString()}円`;
+function ActiveSector(props: SectorProps) {
+  return <Sector {...props} outerRadius={(props.outerRadius as number) + 5} stroke="none" />;
 }
+import { useAssets } from '../hooks/useAssets';
+import { CATEGORIES, getCategoryByKey, normalizeKey } from '../data/categories';
+import { formatJPY, formatJPYShort } from '../utils/format';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -21,7 +21,8 @@ export function Dashboard() {
   // Aggregate by category
   const byCategory: Record<string, number> = {};
   for (const asset of assets) {
-    byCategory[asset.category] = (byCategory[asset.category] ?? 0) + asset.amount;
+    const key = normalizeKey(asset.category);
+    byCategory[key] = (byCategory[key] ?? 0) + asset.amount;
   }
 
   const chartData = CATEGORIES.filter(c => (byCategory[c.key] ?? 0) > 0).map(c => ({
@@ -46,7 +47,28 @@ export function Dashboard() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white mb-6 shadow-lg">
         <p className="text-sm font-medium opacity-80">総資産</p>
         <p className="text-4xl font-bold mt-1">{formatJPY(total)}</p>
-        <p className="text-sm opacity-70 mt-1">{total.toLocaleString()}円</p>
+        <div className="flex gap-6 mt-3 pt-3 border-t border-white/20">
+          {(() => {
+            const traditional = ['stock', 'fund', 'pension'].reduce((s, k) => s + (byCategory[k] ?? 0), 0);
+            const alternative = ['crypto', 'gold'].reduce((s, k) => s + (byCategory[k] ?? 0), 0);
+            return (
+              <>
+                <div>
+                  <p className="text-xs opacity-70">伝統的資産</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(traditional)}</p>
+                </div>
+                <div>
+                  <p className="text-xs opacity-70">オルタナティブ資産</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(alternative)}</p>
+                </div>
+                <div>
+                  <p className="text-xs opacity-70">運用資産合計</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(traditional + alternative)}</p>
+                </div>
+              </>
+            );
+          })()}
+        </div>
       </div>
 
       {/* Chart + Category cards */}
@@ -55,26 +77,32 @@ export function Dashboard() {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-sm font-semibold text-gray-600 mb-4">カテゴリ別内訳</h2>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
+                  cy="45%"
+                  innerRadius={70}
+                  outerRadius={110}
                   paddingAngle={2}
                   dataKey="value"
+                  activeShape={ActiveSector}
                 >
                   {chartData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [formatJPY(Number(value)), '']}
+                  formatter={(value, name) => {
+                    const amt = Number(value);
+                    const pct = total > 0 ? ((amt / total) * 100).toFixed(1) : '0.0';
+                    return [`${formatJPYShort(amt)}（${pct}%）`, name];
+                  }}
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Legend
+                  iconSize={10}
                   formatter={(value) => <span style={{ fontSize: 11 }}>{value}</span>}
                 />
               </PieChart>
@@ -89,17 +117,21 @@ export function Dashboard() {
         {/* Category summary */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-sm font-semibold text-gray-600 mb-4">カテゴリ別合計</h2>
-          <div className="space-y-2.5 overflow-y-auto max-h-[220px]">
+          <div className="space-y-4">
             {CATEGORIES.filter(c => (byCategory[c.key] ?? 0) > 0).map(cat => {
               const amt = byCategory[cat.key] ?? 0;
-              const pct = total > 0 ? Math.round((amt / total) * 100) : 0;
+              const pct = total > 0 ? (amt / total) * 100 : 0;
+              const pctDisplay = total > 0 ? pct.toFixed(1) : '0.0';
               return (
                 <div key={cat.key}>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="flex justify-between items-baseline text-sm mb-1.5">
                     <span className={`font-medium ${cat.textColor}`}>{cat.label}</span>
-                    <span className="text-gray-700 font-semibold">{formatJPY(amt)}</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs text-gray-400">{pctDisplay}%</span>
+                      <span className="text-gray-700 font-semibold">{formatJPYShort(amt)}</span>
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{ width: `${pct}%`, backgroundColor: cat.color }}

@@ -5,13 +5,11 @@ const now = new Date().toISOString();
 export const sampleAssets: Asset[] = [
   { id: '1', name: '普通預金 三菱UFJ', category: 'cash', amount: 500000, memo: '', updatedAt: now },
   { id: '2', name: '定期預金 ゆうちょ', category: 'cash', amount: 1000000, memo: '', updatedAt: now },
-  { id: '3', name: 'トヨタ株', category: 'jp_stock', amount: 300000, memo: '', updatedAt: now },
-  { id: '4', name: 'S&P500 ETF', category: 'foreign_stock', amount: 450000, memo: '', updatedAt: now },
+  { id: '3', name: 'トヨタ株', category: 'stock', amount: 300000, memo: '', updatedAt: now },
+  { id: '4', name: 'S&P500 ETF', category: 'stock', amount: 450000, memo: '', updatedAt: now },
   { id: '5', name: 'eMAXIS Slim 全世界株', category: 'fund', amount: 200000, memo: '', updatedAt: now },
   { id: '6', name: 'Bitcoin', category: 'crypto', amount: 2100000, quantity: 0.15, unitPrice: 14000000, memo: 'BTC', updatedAt: now },
   { id: '7', name: 'Ethereum', category: 'crypto', amount: 1000000, quantity: 2, unitPrice: 500000, memo: 'ETH', updatedAt: now },
-  { id: '8', name: 'マンション評価額', category: 'real_estate', amount: 25000000, memo: '', updatedAt: now },
-  { id: '9', name: '生命保険 解約返戻金', category: 'insurance', amount: 800000, memo: '', updatedAt: now },
 ];
 
 const totalNow = sampleAssets.reduce((s, a) => s + a.amount, 0);

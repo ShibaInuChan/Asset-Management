@@ -1,17 +1,27 @@
 import { useState, useEffect } from 'react';
 import { type Asset } from '../types';
 import { sampleAssets } from '../data/sampleData';
+import { normalizeKey } from '../data/categories';
 
 const KEY = 'assets';
+
+function migrate(assets: Asset[]): Asset[] {
+  return assets.map(a => ({ ...a, category: normalizeKey(a.category) }));
+}
 
 function load(): Asset[] {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Asset[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Asset[];
+      const migrated = migrate(parsed);
+      // 書き戻して次回以降は正規化済みで読める
+      localStorage.setItem(KEY, JSON.stringify(migrated));
+      return migrated;
+    }
   } catch {
     // ignore
   }
-  // First time: load sample data
   localStorage.setItem(KEY, JSON.stringify(sampleAssets));
   return sampleAssets;
 }
@@ -49,5 +59,17 @@ export function useAssets() {
     setAssets(prev => prev.filter(a => a.id !== id));
   }
 
-  return { assets, addAsset, updateAsset, deleteAsset };
+  function reorderAssets(fromId: string, toId: string) {
+    setAssets(prev => {
+      const list = [...prev];
+      const from = list.findIndex(a => a.id === fromId);
+      const to = list.findIndex(a => a.id === toId);
+      if (from === -1 || to === -1 || from === to) return prev;
+      const [item] = list.splice(from, 1);
+      list.splice(to, 0, item);
+      return list;
+    });
+  }
+
+  return { assets, addAsset, updateAsset, deleteAsset, reorderAssets };
 }
