@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAssets } from '../hooks/useAssets';
-import { CATEGORIES, getCategoryByKey } from '../data/categories';
+import { CATEGORIES, getCategoryByKey, normalizeKey } from '../data/categories';
 import { formatJPY, formatJPYShort } from '../utils/format';
 
 function formatDate(iso: string): string {
@@ -16,7 +16,8 @@ export function Dashboard() {
   // Aggregate by category
   const byCategory: Record<string, number> = {};
   for (const asset of assets) {
-    byCategory[asset.category] = (byCategory[asset.category] ?? 0) + asset.amount;
+    const key = normalizeKey(asset.category);
+    byCategory[key] = (byCategory[key] ?? 0) + asset.amount;
   }
 
   const chartData = CATEGORIES.filter(c => (byCategory[c.key] ?? 0) > 0).map(c => ({
