@@ -24,6 +24,8 @@ export function Assets() {
   const dragId = useRef<string | null>(null);
   const touchDragId = useRef<string | null>(null);
   const touchOverId = useRef<string | null>(null);
+  const touchStartY = useRef<number>(0);
+  const touchDragging = useRef(false);
 
   const isCrypto = form.category === 'crypto';
 
@@ -93,12 +95,19 @@ export function Assets() {
   function handleDragEnd() { dragId.current = null; setDragOverId(null); }
 
   // Touch drag handlers
-  function handleTouchStart(id: string) {
+  function handleTouchStart(e: React.TouchEvent, id: string) {
     touchDragId.current = id;
-    setTouchDraggingId(id);
+    touchDragging.current = false;
+    touchStartY.current = e.touches[0].clientY;
   }
 
   function handleTouchMove(e: React.TouchEvent) {
+    const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
+    if (!touchDragging.current) {
+      if (dy < 10) return; // まだ動いていない、スクロールを妨げない
+      touchDragging.current = true;
+      setTouchDraggingId(touchDragId.current);
+    }
     e.preventDefault();
     const touch = e.touches[0];
     const el = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -111,11 +120,12 @@ export function Assets() {
   }
 
   function handleTouchEnd() {
-    if (touchDragId.current && touchOverId.current && touchDragId.current !== touchOverId.current) {
+    if (touchDragging.current && touchDragId.current && touchOverId.current && touchDragId.current !== touchOverId.current) {
       reorderAssets(touchDragId.current, touchOverId.current);
     }
     touchDragId.current = null;
     touchOverId.current = null;
+    touchDragging.current = false;
     setTouchDraggingId(null);
     setTouchOverIdState(null);
   }
@@ -176,7 +186,7 @@ export function Assets() {
                 >
                   <div
                     className="text-gray-400 cursor-grab active:cursor-grabbing mr-3 select-none text-xl leading-none touch-none p-1"
-                    onTouchStart={() => handleTouchStart(asset.id)}
+                    onTouchStart={e => handleTouchStart(e, asset.id)}
                     onTouchMove={e => handleTouchMove(e)}
                     onTouchEnd={() => handleTouchEnd()}
                   >⠿</div>
