@@ -1,17 +1,27 @@
 import { useState, useEffect } from 'react';
 import { type Asset } from '../types';
 import { sampleAssets } from '../data/sampleData';
+import { normalizeKey } from '../data/categories';
 
 const KEY = 'assets';
+
+function migrate(assets: Asset[]): Asset[] {
+  return assets.map(a => ({ ...a, category: normalizeKey(a.category) }));
+}
 
 function load(): Asset[] {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Asset[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Asset[];
+      const migrated = migrate(parsed);
+      // 書き戻して次回以降は正規化済みで読める
+      localStorage.setItem(KEY, JSON.stringify(migrated));
+      return migrated;
+    }
   } catch {
     // ignore
   }
-  // First time: load sample data
   localStorage.setItem(KEY, JSON.stringify(sampleAssets));
   return sampleAssets;
 }
