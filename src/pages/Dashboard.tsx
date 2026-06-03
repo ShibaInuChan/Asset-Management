@@ -40,8 +40,7 @@ export function Dashboard() {
       {/* Total net assets */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white mb-6 shadow-lg">
         <p className="text-sm font-medium opacity-80">総資産</p>
-        <p className="text-4xl font-bold mt-1">{formatJPYShort(total)}</p>
-        <p className="text-sm opacity-70 mt-1">{formatJPY(total)}</p>
+        <p className="text-4xl font-bold mt-1">{formatJPY(total)}</p>
       </div>
 
       {/* Chart + Category cards */}
