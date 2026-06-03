@@ -1,4 +1,5 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, Sector } from 'recharts';
+import type { SectorProps } from 'recharts';
 import { useAssets } from '../hooks/useAssets';
 import { CATEGORIES, getCategoryByKey, normalizeKey } from '../data/categories';
 import { formatJPY, formatJPYShort } from '../utils/format';
@@ -82,7 +83,7 @@ export function Dashboard() {
                   outerRadius={110}
                   paddingAngle={2}
                   dataKey="value"
-                  activeShape={false as unknown as undefined}
+                  activeShape={(props: SectorProps) => <Sector {...props} />}
                 >
                   {chartData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
