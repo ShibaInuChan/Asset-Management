@@ -20,6 +20,9 @@ export function Assets() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragId = useRef<string | null>(null);
+  // touch drag state
+  const touchDragId = useRef<string | null>(null);
+  const touchOverId = useRef<string | null>(null);
 
   const isCrypto = form.category === 'crypto';
 
@@ -78,24 +81,51 @@ export function Assets() {
     if (confirm('この資産を削除しますか？')) deleteAsset(id);
   }
 
-  function handleDragStart(id: string) {
-    dragId.current = id;
-  }
-
-  function handleDragOver(e: React.DragEvent, id: string) {
-    e.preventDefault();
-    setDragOverId(id);
-  }
-
+  // Mouse drag handlers
+  function handleDragStart(id: string) { dragId.current = id; }
+  function handleDragOver(e: React.DragEvent, id: string) { e.preventDefault(); setDragOverId(id); }
   function handleDrop(toId: string) {
     if (dragId.current) reorderAssets(dragId.current, toId);
     dragId.current = null;
     setDragOverId(null);
   }
+  function handleDragEnd() { dragId.current = null; setDragOverId(null); }
 
-  function handleDragEnd() {
-    dragId.current = null;
-    setDragOverId(null);
+  // Touch drag handlers
+  function handleTouchStart(e: React.TouchEvent, id: string) {
+    touchDragId.current = id;
+    (e.currentTarget as HTMLElement).style.opacity = '0.5';
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const li = el?.closest('[data-asset-id]') as HTMLElement | null;
+    const overId = li?.dataset.assetId ?? null;
+    if (overId !== touchOverId.current) {
+      if (touchOverId.current) {
+        const prev = document.querySelector(`[data-asset-id="${touchOverId.current}"]`) as HTMLElement | null;
+        if (prev) prev.style.background = '';
+      }
+      if (overId && overId !== touchDragId.current) {
+        li!.style.background = '#EFF6FF';
+      }
+      touchOverId.current = overId;
+    }
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    (e.currentTarget as HTMLElement).style.opacity = '';
+    if (touchDragId.current && touchOverId.current && touchDragId.current !== touchOverId.current) {
+      reorderAssets(touchDragId.current, touchOverId.current);
+    }
+    if (touchOverId.current) {
+      const el = document.querySelector(`[data-asset-id="${touchOverId.current}"]`) as HTMLElement | null;
+      if (el) el.style.background = '';
+    }
+    touchDragId.current = null;
+    touchOverId.current = null;
   }
 
   // Group assets by category
@@ -140,6 +170,7 @@ export function Assets() {
               {items.map(asset => (
                 <li
                   key={asset.id}
+                  data-asset-id={asset.id}
                   draggable
                   onDragStart={() => handleDragStart(asset.id)}
                   onDragOver={e => handleDragOver(e, asset.id)}
@@ -147,7 +178,12 @@ export function Assets() {
                   onDragEnd={handleDragEnd}
                   className={`flex items-center justify-between px-5 py-4 transition-colors ${dragOverId === asset.id ? 'bg-blue-50' : ''}`}
                 >
-                  <div className="text-gray-300 cursor-grab active:cursor-grabbing mr-3 select-none text-lg leading-none">⠿</div>
+                  <div
+                    className="text-gray-300 cursor-grab active:cursor-grabbing mr-3 select-none text-lg leading-none touch-none"
+                    onTouchStart={e => handleTouchStart(e as unknown as React.TouchEvent<HTMLElement>, asset.id)}
+                    onTouchMove={e => handleTouchMove(e as unknown as React.TouchEvent<HTMLElement>)}
+                    onTouchEnd={e => handleTouchEnd(e as unknown as React.TouchEvent<HTMLElement>)}
+                  >⠿</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{asset.name}</p>
                     {asset.quantity != null && asset.unitPrice != null && (
@@ -159,14 +195,8 @@ export function Assets() {
                   </div>
                   <div className="flex items-center gap-3 ml-4">
                     <p className="text-sm font-bold text-gray-800">{formatJPY(asset.amount)}</p>
-                    <button
-                      onClick={() => openEdit(asset)}
-                      className="text-xs text-gray-500 hover:text-blue-600 transition-colors"
-                    >編集</button>
-                    <button
-                      onClick={() => handleDelete(asset.id)}
-                      className="text-xs text-gray-500 hover:text-red-500 transition-colors"
-                    >削除</button>
+                    <button onClick={() => openEdit(asset)} className="text-xs text-gray-500 hover:text-blue-600 transition-colors">編集</button>
+                    <button onClick={() => handleDelete(asset.id)} className="text-xs text-gray-500 hover:text-red-500 transition-colors">削除</button>
                   </div>
                 </li>
               ))}
@@ -179,7 +209,8 @@ export function Assets() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-xl p-6 md:m-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-xl p-6 md:m-4 overflow-y-auto"
+            style={{ maxHeight: 'calc(100dvh - 80px)' }}>
             <h2 className="text-lg font-bold text-gray-800 mb-5">
               {editing ? '資産を編集' : '資産を追加'}
             </h2>
@@ -259,7 +290,7 @@ export function Assets() {
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-2 pb-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
