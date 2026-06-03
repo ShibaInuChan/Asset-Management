@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAssets } from '../hooks/useAssets';
 import { CATEGORIES } from '../data/categories';
 import type { Asset } from '../types';
@@ -14,10 +14,12 @@ const EMPTY_FORM = {
 };
 
 export function Assets() {
-  const { assets, addAsset, updateAsset, deleteAsset } = useAssets();
+  const { assets, addAsset, updateAsset, deleteAsset, reorderAssets } = useAssets();
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Asset | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragId = useRef<string | null>(null);
 
   const isCrypto = form.category === 'crypto';
 
@@ -76,6 +78,26 @@ export function Assets() {
     if (confirm('この資産を削除しますか？')) deleteAsset(id);
   }
 
+  function handleDragStart(id: string) {
+    dragId.current = id;
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault();
+    setDragOverId(id);
+  }
+
+  function handleDrop(toId: string) {
+    if (dragId.current) reorderAssets(dragId.current, toId);
+    dragId.current = null;
+    setDragOverId(null);
+  }
+
+  function handleDragEnd() {
+    dragId.current = null;
+    setDragOverId(null);
+  }
+
   // Group assets by category
   const grouped = CATEGORIES.map(cat => ({
     cat,
@@ -116,7 +138,16 @@ export function Assets() {
             </div>
             <ul className="divide-y divide-gray-50">
               {items.map(asset => (
-                <li key={asset.id} className="flex items-center justify-between px-5 py-4">
+                <li
+                  key={asset.id}
+                  draggable
+                  onDragStart={() => handleDragStart(asset.id)}
+                  onDragOver={e => handleDragOver(e, asset.id)}
+                  onDrop={() => handleDrop(asset.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center justify-between px-5 py-4 transition-colors ${dragOverId === asset.id ? 'bg-blue-50' : ''}`}
+                >
+                  <div className="text-gray-300 cursor-grab active:cursor-grabbing mr-3 select-none text-lg leading-none">⠿</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{asset.name}</p>
                     {asset.quantity != null && asset.unitPrice != null && (

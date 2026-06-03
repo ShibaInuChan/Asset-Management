@@ -49,5 +49,17 @@ export function useAssets() {
     setAssets(prev => prev.filter(a => a.id !== id));
   }
 
-  return { assets, addAsset, updateAsset, deleteAsset };
+  function reorderAssets(fromId: string, toId: string) {
+    setAssets(prev => {
+      const list = [...prev];
+      const from = list.findIndex(a => a.id === fromId);
+      const to = list.findIndex(a => a.id === toId);
+      if (from === -1 || to === -1 || from === to) return prev;
+      const [item] = list.splice(from, 1);
+      list.splice(to, 0, item);
+      return list;
+    });
+  }
+
+  return { assets, addAsset, updateAsset, deleteAsset, reorderAssets };
 }
