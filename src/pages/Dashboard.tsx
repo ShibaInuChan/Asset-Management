@@ -2,7 +2,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, Sector } fro
 import type { SectorProps } from 'recharts';
 
 function ActiveSector(props: SectorProps) {
-  return <Sector {...props} stroke="none" />;
+  return <Sector {...props} outerRadius={(props.outerRadius as number) + 10} stroke="none" />;
 }
 import { useAssets } from '../hooks/useAssets';
 import { CATEGORIES, getCategoryByKey, normalizeKey } from '../data/categories';
