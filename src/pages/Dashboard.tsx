@@ -55,14 +55,14 @@ export function Dashboard() {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-sm font-semibold text-gray-600 mb-4">カテゴリ別内訳</h2>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
+                  cy="45%"
+                  innerRadius={70}
+                  outerRadius={110}
                   paddingAngle={2}
                   dataKey="value"
                 >
@@ -75,6 +75,7 @@ export function Dashboard() {
                   contentStyle={{ fontSize: 12 }}
                 />
                 <Legend
+                  iconSize={10}
                   formatter={(value) => <span style={{ fontSize: 11 }}>{value}</span>}
                 />
               </PieChart>
@@ -89,17 +90,21 @@ export function Dashboard() {
         {/* Category summary */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-sm font-semibold text-gray-600 mb-4">カテゴリ別合計</h2>
-          <div className="space-y-2.5 overflow-y-auto max-h-[220px]">
+          <div className="space-y-4">
             {CATEGORIES.filter(c => (byCategory[c.key] ?? 0) > 0).map(cat => {
               const amt = byCategory[cat.key] ?? 0;
-              const pct = total > 0 ? Math.round((amt / total) * 100) : 0;
+              const pct = total > 0 ? (amt / total) * 100 : 0;
+              const pctDisplay = total > 0 ? pct.toFixed(1) : '0.0';
               return (
                 <div key={cat.key}>
-                  <div className="flex justify-between text-sm mb-1">
+                  <div className="flex justify-between items-baseline text-sm mb-1.5">
                     <span className={`font-medium ${cat.textColor}`}>{cat.label}</span>
-                    <span className="text-gray-700 font-semibold">{formatJPY(amt)}</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs text-gray-400">{pctDisplay}%</span>
+                      <span className="text-gray-700 font-semibold">{formatJPY(amt)}</span>
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{ width: `${pct}%`, backgroundColor: cat.color }}
