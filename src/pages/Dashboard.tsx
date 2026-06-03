@@ -82,6 +82,7 @@ export function Dashboard() {
                   outerRadius={110}
                   paddingAngle={2}
                   dataKey="value"
+                  activeShape={false as unknown as undefined}
                 >
                   {chartData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />

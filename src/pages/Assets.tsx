@@ -19,8 +19,9 @@ export function Assets() {
   const [editing, setEditing] = useState<Asset | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [touchDraggingId, setTouchDraggingId] = useState<string | null>(null);
+  const [touchOverIdState, setTouchOverIdState] = useState<string | null>(null);
   const dragId = useRef<string | null>(null);
-  // touch drag state
   const touchDragId = useRef<string | null>(null);
   const touchOverId = useRef<string | null>(null);
 
@@ -92,9 +93,9 @@ export function Assets() {
   function handleDragEnd() { dragId.current = null; setDragOverId(null); }
 
   // Touch drag handlers
-  function handleTouchStart(e: React.TouchEvent, id: string) {
+  function handleTouchStart(id: string) {
     touchDragId.current = id;
-    (e.currentTarget as HTMLElement).style.opacity = '0.5';
+    setTouchDraggingId(id);
   }
 
   function handleTouchMove(e: React.TouchEvent) {
@@ -104,28 +105,19 @@ export function Assets() {
     const li = el?.closest('[data-asset-id]') as HTMLElement | null;
     const overId = li?.dataset.assetId ?? null;
     if (overId !== touchOverId.current) {
-      if (touchOverId.current) {
-        const prev = document.querySelector(`[data-asset-id="${touchOverId.current}"]`) as HTMLElement | null;
-        if (prev) prev.style.background = '';
-      }
-      if (overId && overId !== touchDragId.current) {
-        li!.style.background = '#EFF6FF';
-      }
       touchOverId.current = overId;
+      setTouchOverIdState(overId !== touchDragId.current ? overId : null);
     }
   }
 
-  function handleTouchEnd(e: React.TouchEvent) {
-    (e.currentTarget as HTMLElement).style.opacity = '';
+  function handleTouchEnd() {
     if (touchDragId.current && touchOverId.current && touchDragId.current !== touchOverId.current) {
       reorderAssets(touchDragId.current, touchOverId.current);
     }
-    if (touchOverId.current) {
-      const el = document.querySelector(`[data-asset-id="${touchOverId.current}"]`) as HTMLElement | null;
-      if (el) el.style.background = '';
-    }
     touchDragId.current = null;
     touchOverId.current = null;
+    setTouchDraggingId(null);
+    setTouchOverIdState(null);
   }
 
   // Group assets by category
@@ -176,13 +168,17 @@ export function Assets() {
                   onDragOver={e => handleDragOver(e, asset.id)}
                   onDrop={() => handleDrop(asset.id)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center justify-between px-5 py-4 transition-colors ${dragOverId === asset.id ? 'bg-blue-50' : ''}`}
+                  className={[
+                    'flex items-center justify-between px-5 py-4 transition-colors',
+                    dragOverId === asset.id || touchOverIdState === asset.id ? 'border-t-2 border-blue-400 bg-blue-50' : '',
+                    touchDraggingId === asset.id ? 'opacity-40' : '',
+                  ].join(' ')}
                 >
                   <div
-                    className="text-gray-300 cursor-grab active:cursor-grabbing mr-3 select-none text-lg leading-none touch-none"
-                    onTouchStart={e => handleTouchStart(e as unknown as React.TouchEvent<HTMLElement>, asset.id)}
-                    onTouchMove={e => handleTouchMove(e as unknown as React.TouchEvent<HTMLElement>)}
-                    onTouchEnd={e => handleTouchEnd(e as unknown as React.TouchEvent<HTMLElement>)}
+                    className="text-gray-400 cursor-grab active:cursor-grabbing mr-3 select-none text-xl leading-none touch-none p-1"
+                    onTouchStart={() => handleTouchStart(asset.id)}
+                    onTouchMove={e => handleTouchMove(e)}
+                    onTouchEnd={() => handleTouchEnd()}
                   >⠿</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{asset.name}</p>
@@ -209,8 +205,9 @@ export function Assets() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-xl p-6 md:m-4 overflow-y-auto"
-            style={{ maxHeight: 'calc(100dvh - 80px)' }}>
+          {/* mb-16 = bottom nav height on mobile */}
+          <div className="relative bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-xl p-6 md:m-4 overflow-y-auto mb-16 md:mb-0"
+            style={{ maxHeight: 'calc(100dvh - 120px)' }}>
             <h2 className="text-lg font-bold text-gray-800 mb-5">
               {editing ? '資産を編集' : '資産を追加'}
             </h2>
