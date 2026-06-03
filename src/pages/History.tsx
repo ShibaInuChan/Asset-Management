@@ -2,12 +2,7 @@ import { useAssets } from '../hooks/useAssets';
 import { useSnapshots } from '../hooks/useSnapshots';
 import { CATEGORIES } from '../data/categories';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-function formatJPY(amount: number): string {
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(2)}億円`;
-  if (amount >= 10000) return `${Math.floor(amount / 10000).toLocaleString()}万円`;
-  return `${amount.toLocaleString()}円`;
-}
+import { formatJPY } from '../utils/format';
 
 export function History() {
   const { assets } = useAssets();

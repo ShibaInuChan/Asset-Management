@@ -14,7 +14,7 @@ export const CATEGORIES: Category[] = [
   { key: 'crypto', label: '暗号資産', color: '#F97316', bgColor: 'bg-orange-100', textColor: 'text-orange-700' },
   { key: 'real_estate', label: '不動産', color: '#8B5CF6', bgColor: 'bg-violet-100', textColor: 'text-violet-700' },
   { key: 'insurance', label: '保険', color: '#EC4899', bgColor: 'bg-pink-100', textColor: 'text-pink-700' },
-  { key: 'pension', label: '年金・iDeCo', color: '#14B8A6', bgColor: 'bg-teal-100', textColor: 'text-teal-700' },
+  { key: 'pension', label: '年金・確定拠出年金（iDeCo）', color: '#14B8A6', bgColor: 'bg-teal-100', textColor: 'text-teal-700' },
   { key: 'other', label: 'その他', color: '#6B7280', bgColor: 'bg-gray-100', textColor: 'text-gray-700' },
 ];
 

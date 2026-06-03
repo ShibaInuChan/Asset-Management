@@ -2,12 +2,7 @@ import { useState } from 'react';
 import { useAssets } from '../hooks/useAssets';
 import { CATEGORIES } from '../data/categories';
 import type { Asset } from '../types';
-
-function formatJPY(amount: number): string {
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(2)}億円`;
-  if (amount >= 10000) return `${Math.floor(amount / 10000).toLocaleString()}万円`;
-  return `${amount.toLocaleString()}円`;
-}
+import { formatJPY } from '../utils/format';
 
 const EMPTY_FORM = {
   name: '',
