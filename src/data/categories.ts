@@ -12,8 +12,7 @@ export const CATEGORIES: Category[] = [
   { key: 'foreign_stock', label: '外国株式', color: '#6366F1', bgColor: 'bg-indigo-100', textColor: 'text-indigo-700' },
   { key: 'fund', label: '投資信託', color: '#F59E0B', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
   { key: 'crypto', label: '暗号資産', color: '#F97316', bgColor: 'bg-orange-100', textColor: 'text-orange-700' },
-  { key: 'real_estate', label: '不動産', color: '#8B5CF6', bgColor: 'bg-violet-100', textColor: 'text-violet-700' },
-  { key: 'insurance', label: '保険', color: '#EC4899', bgColor: 'bg-pink-100', textColor: 'text-pink-700' },
+
   { key: 'robo_advisor', label: 'ロボアドバイザー', color: '#06B6D4', bgColor: 'bg-cyan-100', textColor: 'text-cyan-700' },
   { key: 'gold', label: '金・貴金属', color: '#EAB308', bgColor: 'bg-yellow-100', textColor: 'text-yellow-700' },
   { key: 'pension', label: '年金・確定拠出年金（iDeCo）', color: '#14B8A6', bgColor: 'bg-teal-100', textColor: 'text-teal-700' },
