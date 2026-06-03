@@ -2,7 +2,7 @@ import { useAssets } from '../hooks/useAssets';
 import { useSnapshots } from '../hooks/useSnapshots';
 import { CATEGORIES } from '../data/categories';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { formatJPY, formatJPYShort } from '../utils/format';
+import { formatJPYShort } from '../utils/format';
 
 export function History() {
   const { assets } = useAssets();
