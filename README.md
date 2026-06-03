@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+# 資産管理アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+マネーフォワードライクなブラウザ資産管理アプリ。**暗号資産を現金・預金と分けて管理**できることが特徴です。
 
-Currently, two official plugins are available:
+🌐 **[asset-management-nu-seven.vercel.app](https://asset-management-nu-seven.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 主な機能
 
-## React Compiler
+- **ダッシュボード** — 総資産・カテゴリ別ドーナツグラフ・割合表示
+- **資産一覧** — カテゴリ別グループ表示・追加/編集/削除
+- **履歴** — 月次スナップショットの記録・折れ線グラフで推移確認
+- **データ永続化** — localStorage（サーバー不要、ブラウザ内に保存）
+- **レスポンシブ対応** — デスクトップはサイドバー、スマホはボトムナビ
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 資産カテゴリ
 
-## Expanding the ESLint configuration
+| カテゴリ | 説明 |
+|----------|------|
+| 現金・預金 | 銀行口座、ゆうちょなど |
+| 国内株式 | 日本株 |
+| 外国株式 | 米国株・ETFなど |
+| 投資信託 | インデックスファンドなど |
+| **暗号資産** | BTC・ETHなど（数量×単価で円換算） |
+| 不動産 | マンション・土地など |
+| 保険 | 解約返戻金など |
+| その他 | 上記に当てはまらないもの |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 技術スタック
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- [React](https://react.dev/) + [Vite](https://vite.dev/) + TypeScript
+- [Tailwind CSS v3](https://tailwindcss.com/)
+- [Recharts](https://recharts.org/)（グラフ）
+- [React Router](https://reactrouter.com/)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ローカル開発
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/ShibaInuChan/Asset-Management.git
+cd Asset-Management
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+ブラウザで http://localhost:5173 を開く。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## デプロイ
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+mainブランチへのプッシュで Vercel が自動デプロイします。
