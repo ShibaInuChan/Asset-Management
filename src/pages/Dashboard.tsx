@@ -42,6 +42,20 @@ export function Dashboard() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white mb-6 shadow-lg">
         <p className="text-sm font-medium opacity-80">総資産</p>
         <p className="text-4xl font-bold mt-1">{formatJPY(total)}</p>
+        <div className="flex gap-6 mt-3 pt-3 border-t border-white/20">
+          <div>
+            <p className="text-xs opacity-70">運用資産</p>
+            <p className="text-sm font-semibold mt-0.5">
+              {formatJPY(['stock', 'fund', 'pension'].reduce((s, k) => s + (byCategory[k] ?? 0), 0))}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs opacity-70">オルタナティブ資産</p>
+            <p className="text-sm font-semibold mt-0.5">
+              {formatJPY(['crypto', 'gold'].reduce((s, k) => s + (byCategory[k] ?? 0), 0))}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Chart + Category cards */}
