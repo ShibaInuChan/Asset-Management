@@ -43,18 +43,26 @@ export function Dashboard() {
         <p className="text-sm font-medium opacity-80">総資産</p>
         <p className="text-4xl font-bold mt-1">{formatJPY(total)}</p>
         <div className="flex gap-6 mt-3 pt-3 border-t border-white/20">
-          <div>
-            <p className="text-xs opacity-70">運用資産</p>
-            <p className="text-sm font-semibold mt-0.5">
-              {formatJPY(['stock', 'fund', 'pension'].reduce((s, k) => s + (byCategory[k] ?? 0), 0))}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs opacity-70">オルタナティブ資産</p>
-            <p className="text-sm font-semibold mt-0.5">
-              {formatJPY(['crypto', 'gold'].reduce((s, k) => s + (byCategory[k] ?? 0), 0))}
-            </p>
-          </div>
+          {(() => {
+            const traditional = ['stock', 'fund', 'pension'].reduce((s, k) => s + (byCategory[k] ?? 0), 0);
+            const alternative = ['crypto', 'gold'].reduce((s, k) => s + (byCategory[k] ?? 0), 0);
+            return (
+              <>
+                <div>
+                  <p className="text-xs opacity-70">伝統的資産</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(traditional)}</p>
+                </div>
+                <div>
+                  <p className="text-xs opacity-70">オルタナティブ資産</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(alternative)}</p>
+                </div>
+                <div>
+                  <p className="text-xs opacity-70">運用資産合計</p>
+                  <p className="text-sm font-semibold mt-0.5">{formatJPY(traditional + alternative)}</p>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
 
